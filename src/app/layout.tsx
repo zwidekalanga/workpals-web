@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { AuthListener } from '@/components/auth/auth-listener'
 import { Provider } from '@/components/ui/provider'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Provider>
+          <AuthListener>
+            {children}
+            <Toaster />
+          </AuthListener>
+        </Provider>
       </body>
     </html>
   )
