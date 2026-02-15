@@ -1,45 +1,79 @@
 export interface TierConfig {
-  id: string
-  name: string
-  price: number
-  priceLabel: string
-  analysesPerMonth: number
-  features: string[]
-  recommended?: boolean
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  billingLabel: string;
+  yearlyPrice?: number;
+  yearlyPriceLabel?: string;
+  yearlyBillingLabel?: string;
+  analysesPerMonth: number;
+  analysesLabel: string;
+  features: string[];
+  recommended?: boolean;
 }
 
 export const tiers: TierConfig[] = [
   {
-    id: 'free',
-    name: 'Free',
+    id: "free",
+    name: "Free",
     price: 0,
-    priceLabel: '$0',
+    priceLabel: "Free",
+    billingLabel: "",
     analysesPerMonth: 2,
-    features: ['CV generation', 'Apply Fixes', 'CV preview & downloads'],
+    analysesLabel: "2 analyses per month",
+    features: ["CV generation", "Apply Fixes", "CV preview & downloads"],
   },
   {
-    id: 'lite',
-    name: 'Lite',
-    price: 3,
-    priceLabel: '$3/mo',
-    analysesPerMonth: 10,
-    features: ['CV generation', 'Apply Fixes', 'CV preview & downloads', 'Unlimited report history'],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 6,
-    priceLabel: '$6/mo',
+    id: "pro",
+    name: "Pro",
+    price: 7,
+    priceLabel: "$7",
+    billingLabel: "/month",
+    yearlyPrice: 74,
+    yearlyPriceLabel: "$74",
+    yearlyBillingLabel: "/year",
     analysesPerMonth: 30,
-    features: ['CV generation', 'Apply Fixes', 'CV preview & downloads', 'Unlimited report history'],
+    analysesLabel: "30 analyses per month",
+    features: [
+      "CV generation",
+      "Apply Fixes",
+      "CV preview & downloads",
+      "Unlimited report history",
+    ],
+  },
+  {
+    id: "lite",
+    name: "Lite",
+    price: 4,
+    priceLabel: "$4",
+    billingLabel: "/month",
+    yearlyPrice: 42,
+    yearlyPriceLabel: "$42",
+    yearlyBillingLabel: "/year",
+    analysesPerMonth: 10,
+    analysesLabel: "10 analyses per month",
+    features: [
+      "CV generation",
+      "Apply Fixes",
+      "CV preview & downloads",
+      "Unlimited report history",
+    ],
     recommended: true,
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 11,
-    priceLabel: '$11/mo',
-    analysesPerMonth: -1,
-    features: ['CV generation', 'Apply Fixes', 'CV preview & downloads', 'Unlimited report history'],
+    id: "booster",
+    name: "Booster",
+    price: 2,
+    priceLabel: "$2",
+    billingLabel: "/Once-off",
+    analysesPerMonth: 2,
+    analysesLabel: "2 analyses",
+    features: [
+      "CV generation",
+      "Apply Fixes",
+      "CV preview & downloads",
+      "No subscription",
+    ],
   },
-]
+];

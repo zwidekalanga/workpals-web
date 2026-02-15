@@ -1,54 +1,200 @@
-'use client'
+"use client";
 
-import { routes } from '@/config/routes'
-import { tiers } from '@/config/tiers'
-import { Box, Button, Heading, List, Progress, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { LuCheck } from 'react-icons/lu'
+import { routes } from "@/config/routes";
+import { tiers } from "@/config/tiers";
+import {
+  Box,
+  Button,
+  Card,
+  Heading,
+  List,
+  Separator,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
+import { LuChevronRight, LuCircleCheck, LuCrown } from "react-icons/lu";
 
 interface Props {
-  tier: string
-  analysesUsed: number
-  analysesLimit: number
+  tier: string;
+  analysesUsed: number;
+  analysesLimit: number;
+  periodStart?: string;
 }
 
-export function PlanSection({ tier, analysesUsed, analysesLimit }: Props) {
-  const router = useRouter()
-  const tierConfig = tiers.find((t) => t.id === tier) ?? tiers[0]
-  const isUnlimited = analysesLimit === 999999
-  const progressValue = isUnlimited ? 0 : (analysesUsed / analysesLimit) * 100
+function SegmentedProgress({ used, total }: { used: number; total: number }) {
+  const segments = Array.from({ length: total }, (_, i) => i < used);
+  return (
+    <Box display="flex" gap="1">
+      {segments.map((filled, i) => (
+        <Box
+          key={i}
+          flex="1"
+          h="3"
+          borderRadius="sm"
+          bg={filled ? "black" : "gray.200"}
+        />
+      ))}
+    </Box>
+  );
+}
+
+export function PlanSection({
+  tier,
+  analysesUsed,
+  analysesLimit,
+  periodStart,
+}: Props) {
+  const router = useRouter();
+  const tierConfig = tiers.find((t) => t.id === tier) ?? tiers[0];
+  const isFree = tier === "free";
+  const isUnlimited = analysesLimit === 999999;
+  const remaining = Math.max(0, analysesLimit - analysesUsed);
+
+  // Format period as YYYY-MM from periodStart
+  const billingCycle = periodStart
+    ? periodStart.substring(0, 7)
+    : new Date().toISOString().substring(0, 7);
 
   return (
-    <Box>
-      <Heading size="sm" mb="3">
-        Plan Details
+    <Stack gap="5">
+      {/* Plan heading */}
+      <Heading
+        fontFamily="var(--font-serif), serif"
+        fontWeight="400"
+        fontSize="24px"
+        lineHeight="1"
+        letterSpacing="-0.01em"
+        textAlign="center"
+      >
+        Plan
       </Heading>
-      <Text fontWeight="medium" mb="1">
-        {tierConfig.name} Plan
-      </Text>
-      <Text fontSize="sm" color="fg.muted" mb="3">
-        {isUnlimited
-          ? `${analysesUsed} analyses used (unlimited)`
-          : `${analysesUsed} of ${analysesLimit} analyses used this month`}
-      </Text>
-      {!isUnlimited && (
-        <Progress.Root value={progressValue} size="sm" mb="3" colorPalette="blue">
-          <Progress.Track>
-            <Progress.Range />
-          </Progress.Track>
-        </Progress.Root>
-      )}
-      <List.Root gap="1" mb="4">
-        {tierConfig.features.map((feature) => (
-          <List.Item key={feature} fontSize="sm" display="flex" alignItems="center" gap="2">
-            <Box as={LuCheck} color="green.500" flexShrink={0} />
-            {feature}
-          </List.Item>
-        ))}
-      </List.Root>
-      <Button variant="outline" size="sm" onClick={() => router.push(routes.subscription)}>
-        Manage subscription &rarr;
-      </Button>
-    </Box>
-  )
+
+      <Card.Root borderRadius="xl" overflow="hidden">
+        {/* Header bar */}
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          bg="gray.50"
+          px="5"
+          py="3"
+          borderBottom="1px solid"
+          borderColor="border"
+        >
+          <Box display="flex" alignItems="center" gap="2">
+            <Box as={LuCrown} boxSize="4" />
+            <Text fontWeight="semibold" fontSize="sm">
+              Plan
+            </Text>
+          </Box>
+          <Text fontWeight="medium" fontSize="sm">
+            {tierConfig.name}
+          </Text>
+        </Box>
+
+        <Card.Body px="5" py="4">
+          <Stack gap="0">
+            {/* Billing Cycle & Auto renew — only for paid tiers */}
+            {!isFree && (
+              <>
+                <Box py="3">
+                  <Text fontSize="sm" color="fg.muted">
+                    Billing Cycle
+                  </Text>
+                  <Text fontSize="sm" fontWeight="bold">
+                    {billingCycle}
+                  </Text>
+                </Box>
+
+                <Separator />
+
+                <Box py="3">
+                  <Text fontSize="sm" color="fg.muted">
+                    Auto renew
+                  </Text>
+                  <Text fontSize="sm" fontWeight="bold">
+                    Active
+                  </Text>
+                </Box>
+
+                <Separator />
+              </>
+            )}
+
+            {/* Usage */}
+            <Box py="3">
+              <Box display="flex" justifyContent="space-between" mb="2">
+                <Text fontSize="sm" color="fg.muted">
+                  Monthly usage
+                </Text>
+                <Text fontSize="sm" fontWeight="medium">
+                  {isUnlimited
+                    ? `${analysesUsed} used`
+                    : `${analysesUsed}/${analysesLimit}`}
+                </Text>
+              </Box>
+              {!isUnlimited && (
+                <>
+                  <SegmentedProgress
+                    used={analysesUsed}
+                    total={analysesLimit}
+                  />
+                  <Text fontSize="xs" color="fg.muted" mt="1.5">
+                    {remaining} analyses remaining this period
+                  </Text>
+                </>
+              )}
+            </Box>
+
+            <Separator />
+
+            {/* What's included */}
+            <Box pt="4" pb="2">
+              <Heading size="sm" mb="3">
+                What&apos;s included in your plan
+              </Heading>
+              <List.Root gap="2" variant="plain">
+                <List.Item
+                  fontSize="sm"
+                  display="flex"
+                  alignItems="center"
+                  gap="2"
+                >
+                  <Box as={LuCircleCheck} boxSize="4.5" flexShrink={0} />
+                  {tierConfig.analysesLabel}
+                </List.Item>
+                {tierConfig.features.map((feature) => (
+                  <List.Item
+                    key={feature}
+                    fontSize="sm"
+                    display="flex"
+                    alignItems="center"
+                    gap="2"
+                  >
+                    <Box as={LuCircleCheck} boxSize="4.5" flexShrink={0} />
+                    {feature}
+                  </List.Item>
+                ))}
+              </List.Root>
+            </Box>
+          </Stack>
+        </Card.Body>
+      </Card.Root>
+
+      {/* Manage subscription button — outside the card */}
+      <Box display="flex" justifyContent="center">
+        <Button
+          variant="outline"
+          borderRadius="xl"
+          size="lg"
+          px="6"
+          onClick={() => router.push(routes.subscription)}
+        >
+          Manage subscription
+          <LuChevronRight />
+        </Button>
+      </Box>
+    </Stack>
+  );
 }

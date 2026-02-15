@@ -50,18 +50,34 @@ export function ChangePasswordForm() {
       <Stack gap="3" maxW="sm">
         <Field.Root>
           <Field.Label>New password</Field.Label>
-          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+          <PasswordInput
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+          />
         </Field.Root>
         <Field.Root>
           <Field.Label>Confirm password</Field.Label>
-          <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
+          <PasswordInput
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+            minLength={6}
+          />
         </Field.Root>
         {error && (
           <Text color="red.500" fontSize="sm">
             {error}
           </Text>
         )}
-        <Button type="submit" size="sm" colorPalette="blue" alignSelf="flex-start" loading={loading}>
+        <Button
+          type="submit"
+          size="sm"
+          colorPalette="blue"
+          alignSelf="flex-start"
+          loading={loading}
+        >
           Update password
         </Button>
       </Stack>

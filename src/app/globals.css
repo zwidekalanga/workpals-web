@@ -6,3 +6,10 @@
   margin: 0;
   padding: 0;
 }
+
+/* Design system: more rounded inputs and textareas */
+input,
+textarea,
+select {
+  border-radius: 12px !important;
+}

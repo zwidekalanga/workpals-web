@@ -1,51 +1,93 @@
-import { Box, Card, Heading, SimpleGrid, Text } from '@chakra-ui/react'
-import { LuFileText, LuScanSearch, LuSparkles } from 'react-icons/lu'
+import { Box, Circle, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import Image from "next/image";
 
 const steps = [
   {
-    icon: LuFileText,
-    title: 'Upload CV & JD',
-    description: 'Drop your CV and the job description. We accept PDF, DOCX, and TXT files.',
+    number: 1,
+    description:
+      "Upload your CV and the job description so we can analyse the requirements, competencies, and keywords.",
+    image: "/step-1-character.png",
   },
   {
-    icon: LuScanSearch,
-    title: 'AI Analyzes Match',
-    description: 'Our engine compares your experience against the job requirements point by point.',
+    number: 2,
+    description:
+      "You can apply all recommended fixes automatically, or review and apply them individually.",
+    image: "/step-2-character.png",
   },
   {
-    icon: LuSparkles,
-    title: 'Get Actionable Feedback',
-    description: 'Receive a match score, gap analysis, and specific suggestions to improve your CV.',
+    number: 3,
+    description:
+      "Submit your application with a CV that's tailored to the job's exact requirements.",
+    image: "/step-3-character.png",
   },
-]
+];
 
 export function HowItWorks() {
   return (
-    <Box py="16" id="how-it-works">
-      <Heading size="xl" textAlign="center" mb="8">
-        How It Works
-      </Heading>
-      <SimpleGrid columns={{ base: 1, md: 3 }} gap="6" maxW="5xl" mx="auto">
-        {steps.map((step, i) => (
-          <Card.Root key={i} p="6" textAlign="center">
-            <Card.Body>
-              <Box
-                as={step.icon}
+    <Box py="12" px="4" id="how-it-works" bg="blue.50">
+      <Box maxW="5xl" mx="auto">
+        {/* Section header */}
+        <Flex direction="column" align="center" gap="32px" mb="10">
+          <Image src="/sparkle-icon.png" alt="" width={48} height={48} />
+          <Heading
+            fontSize="32px"
+            textAlign="center"
+            fontFamily="var(--font-serif), serif"
+            fontWeight="400"
+            lineHeight="1"
+            letterSpacing="-0.01em"
+          >
+            How it works
+          </Heading>
+        </Flex>
+
+        <SimpleGrid columns={{ base: 1, md: 3 }} gap="8">
+          {steps.map((step) => (
+            <Box key={step.number} textAlign="center">
+              {/* Numbered circle */}
+              <Circle
+                size="48px"
+                bg="transparent"
+                color="rgba(115, 115, 115, 1)"
+                borderWidth="1px"
+                borderColor="rgba(115, 115, 115, 1)"
+                fontWeight="700"
+                fontSize="16px"
+                lineHeight="1"
+                letterSpacing="-0.01em"
+                borderRadius="64px"
                 mx="auto"
                 mb="4"
-                boxSize="10"
-                color="blue.500"
-              />
-              <Heading size="md" mb="2">
-                {step.title}
-              </Heading>
-              <Text color="fg.muted" fontSize="sm">
+              >
+                {step.number}
+              </Circle>
+
+              <Text
+                color="rgba(0, 0, 0, 1)"
+                fontSize="16px"
+                fontWeight="500"
+                lineHeight="1"
+                letterSpacing="-0.01em"
+                maxW="xs"
+                mx="auto"
+              >
                 {step.description}
               </Text>
-            </Card.Body>
-          </Card.Root>
-        ))}
-      </SimpleGrid>
+
+              {/* Character illustration */}
+              <Box mt="6" mx="auto" maxW="160px">
+                <Image
+                  src={step.image}
+                  alt={`Step ${step.number} illustration`}
+                  width={160}
+                  height={160}
+                  style={{ width: "100%", height: "auto" }}
+                />
+              </Box>
+            </Box>
+          ))}
+        </SimpleGrid>
+      </Box>
     </Box>
-  )
+  );
 }

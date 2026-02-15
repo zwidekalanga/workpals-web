@@ -1,45 +1,48 @@
-'use client'
+"use client";
 
-import { PasswordInput } from '@/components/ui/password-input'
-import { createClient } from '@/lib/supabase/client'
-import { Box, Button, Field, Input, Link, Stack, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { PasswordInput } from "@/components/ui/password-input";
+import { createClient } from "@/lib/supabase/client";
+import { Box, Button, Field, Input, Link, Stack, Text } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const ERROR_MESSAGES: Record<string, string> = {
-  invalid_credentials: 'Invalid email or password.',
-  email_not_confirmed: 'Please confirm your email first.',
-  user_not_found: 'No account found with this email.',
-}
+  invalid_credentials: "Invalid email or password.",
+  email_not_confirmed: "Please confirm your email first.",
+  user_not_found: "No account found with this email.",
+};
 
 interface Props {
-  onForgotPassword: () => void
-  redirectTo?: string
+  onForgotPassword: () => void;
+  redirectTo?: string;
 }
 
 export function SignInForm({ onForgotPassword, redirectTo }: Props) {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
-      setError(ERROR_MESSAGES[error.code ?? ''] || error.message)
-      setLoading(false)
-      return
+      setError(ERROR_MESSAGES[error.code ?? ""] || error.message);
+      setLoading(false);
+      return;
     }
 
-    router.push(redirectTo || '/dashboard')
-    router.refresh()
+    router.push(redirectTo || "/dashboard");
+    router.refresh();
   }
 
   return (
@@ -49,10 +52,15 @@ export function SignInForm({ onForgotPassword, redirectTo }: Props) {
           <Field.Label>Email</Field.Label>
           <Input
             type="email"
-            placeholder="you@example.com"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            borderRadius="16px"
+            h="52px"
+            py="16px"
+            pl="12px"
+            pr="56px"
           />
         </Field.Root>
 
@@ -66,17 +74,17 @@ export function SignInForm({ onForgotPassword, redirectTo }: Props) {
           />
         </Field.Root>
 
-        <Box textAlign="right">
+        <Text textAlign="center">
           <Link
             as="button"
             type="button"
             fontSize="sm"
-            color="blue.500"
+            fontWeight="medium"
             onClick={onForgotPassword}
           >
             Forgot password?
           </Link>
-        </Box>
+        </Text>
 
         {error && (
           <Text color="red.500" fontSize="sm">
@@ -84,10 +92,21 @@ export function SignInForm({ onForgotPassword, redirectTo }: Props) {
           </Text>
         )}
 
-        <Button type="submit" colorPalette="blue" width="full" loading={loading}>
+        <Button
+          type="submit"
+          bg="#4353FF"
+          color="white"
+          _hover={{ bg: "#3643DB" }}
+          width="full"
+          borderRadius="xl"
+          h="48px"
+          fontSize="16px"
+          fontWeight="600"
+          loading={loading}
+        >
           Sign In
         </Button>
       </Stack>
     </form>
-  )
+  );
 }
