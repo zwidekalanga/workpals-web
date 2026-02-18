@@ -295,15 +295,15 @@ export default function ReportPage() {
           {statusData?.error ?? "An unexpected error occurred during analysis."}
         </Text>
         <Button
-          bg="#4353FF"
-          color="white"
-          _hover={{ bg: "#3643DB" }}
+          variant="outline"
+          size="md"
           borderRadius="full"
-          px="8"
-          h="48px"
-          fontSize="16px"
-          fontWeight="600"
-          letterSpacing="-0.01em"
+          px="6"
+          py="2"
+          fontSize="14px"
+          fontWeight="500"
+          borderColor="gray.300"
+          color="fg"
           onClick={() => router.push("/dashboard")}
         >
           <LuArrowLeft size={16} />
@@ -327,15 +327,15 @@ export default function ReportPage() {
           Analysis was cancelled
         </Text>
         <Button
-          bg="#4353FF"
-          color="white"
-          _hover={{ bg: "#3643DB" }}
+          variant="outline"
+          size="md"
           borderRadius="full"
-          px="8"
-          h="48px"
-          fontSize="16px"
-          fontWeight="600"
-          letterSpacing="-0.01em"
+          px="6"
+          py="2"
+          fontSize="14px"
+          fontWeight="500"
+          borderColor="gray.300"
+          color="fg"
           onClick={() => router.push("/dashboard")}
         >
           <LuArrowLeft size={16} />
