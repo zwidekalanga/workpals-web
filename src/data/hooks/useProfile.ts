@@ -20,6 +20,6 @@ export default function useProfile() {
   return useQuery({
     queryKey: queryKeys.profile(),
     queryFn: () => apiFetch<Profile>("/api/profile"),
-    staleTime: 5 * 60_000,
+    staleTime: 0,
   });
 }

@@ -144,73 +144,26 @@ export function ImprovementsContent({ patches, pipelineRunId }: Props) {
                   </Text>
                 </Box>
 
-                {/* Recommended Fix — white section (only if there's an actual rewrite) */}
-                {hasUsableRewrite(patch) ? (
-                  <Box px="4" py="3.5">
-                    <Flex alignItems="center" gap="2" mb="1.5">
-                      <LuCheck size={14} strokeWidth={2.5} />
-                      <Text fontSize="14px" fontWeight="700">
-                        Recommended Fix
-                      </Text>
-                    </Flex>
-                    <PatchedContent value={patch.patched} />
-
-                    <Flex
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mt="3"
-                    >
-                      <Text fontSize="13px">
-                        Impact:{" "}
-                        <Text as="span" fontWeight="700">
-                          {patch.section_label}
-                          {patch.section === "experience" &&
-                            patch.role_index != null &&
-                            ` (Role ${patch.role_index + 1})`}
+                {/* Recommended Fix — white section */}
+                <Box px="4" py="3.5">
+                  {hasUsableRewrite(patch) && (
+                    <>
+                      <Flex alignItems="center" gap="2" mb="1.5">
+                        <LuCheck size={14} strokeWidth={2.5} />
+                        <Text fontSize="14px" fontWeight="700">
+                          Recommended Fix
                         </Text>
-                      </Text>
-                      <Button
-                        size="xs"
-                        variant={isApplied ? "solid" : "outline"}
-                        borderRadius="lg"
-                        px="3.5"
-                        py="1"
-                        fontSize="12px"
-                        fontWeight="500"
-                        borderColor="gray.300"
-                        color={isApplied ? "white" : "fg"}
-                        bg={isApplied ? "green.500" : "transparent"}
-                        _hover={{
-                          bg: isApplied ? "green.600" : "gray.50",
-                        }}
-                        loading={
-                          applyFixMutation.isPending &&
-                          applyFixMutation.variables === i
-                        }
-                        onClick={() =>
-                          applyFixMutation.mutate(i, {
-                            onError: (e) =>
-                              toaster.error({
-                                title: "Fix failed",
-                                description:
-                                  e.message ||
-                                  "Could not apply fix. Please try again.",
-                              }),
-                          })
-                        }
-                      >
-                        {isApplied ? "Applied" : "Apply fix"}
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Box
-                    px="4"
-                    py="3"
-                    borderTopWidth="1px"
-                    borderColor="gray.100"
+                      </Flex>
+                      <PatchedContent value={patch.patched} />
+                    </>
+                  )}
+
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mt={hasUsableRewrite(patch) ? "3" : "0"}
                   >
-                    <Text fontSize="13px" color="fg.muted">
+                    <Text fontSize="13px">
                       Impact:{" "}
                       <Text as="span" fontWeight="700">
                         {patch.section_label}
@@ -219,8 +172,40 @@ export function ImprovementsContent({ patches, pipelineRunId }: Props) {
                           ` (Role ${patch.role_index + 1})`}
                       </Text>
                     </Text>
-                  </Box>
-                )}
+                    <Button
+                      size="xs"
+                      variant={isApplied ? "solid" : "outline"}
+                      borderRadius="lg"
+                      px="3.5"
+                      py="1"
+                      fontSize="12px"
+                      fontWeight="500"
+                      borderColor="gray.300"
+                      color={isApplied ? "white" : "fg"}
+                      bg={isApplied ? "green.500" : "transparent"}
+                      _hover={{
+                        bg: isApplied ? "green.600" : "gray.50",
+                      }}
+                      loading={
+                        applyFixMutation.isPending &&
+                        applyFixMutation.variables === i
+                      }
+                      onClick={() =>
+                        applyFixMutation.mutate(i, {
+                          onError: (e) =>
+                            toaster.error({
+                              title: "Fix failed",
+                              description:
+                                e.message ||
+                                "Could not apply fix. Please try again.",
+                            }),
+                        })
+                      }
+                    >
+                      {isApplied ? "Applied" : "Apply fix"}
+                    </Button>
+                  </Flex>
+                </Box>
               </Box>
             );
           })}
