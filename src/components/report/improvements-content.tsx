@@ -144,24 +144,26 @@ export function ImprovementsContent({ patches, pipelineRunId }: Props) {
                   </Text>
                 </Box>
 
-                {/* Recommended Fix — white section */}
+                {/* Recommended Fix — white section (always shown) */}
                 <Box px="4" py="3.5">
-                  {hasUsableRewrite(patch) && (
-                    <>
-                      <Flex alignItems="center" gap="2" mb="1.5">
-                        <LuCheck size={14} strokeWidth={2.5} />
-                        <Text fontSize="14px" fontWeight="700">
-                          Recommended Fix
-                        </Text>
-                      </Flex>
-                      <PatchedContent value={patch.patched} />
-                    </>
+                  <Flex alignItems="center" gap="2" mb="1.5">
+                    <LuCheck size={14} strokeWidth={2.5} />
+                    <Text fontSize="14px" fontWeight="700">
+                      Recommended Fix
+                    </Text>
+                  </Flex>
+                  {hasUsableRewrite(patch) ? (
+                    <PatchedContent value={patch.patched} />
+                  ) : (
+                    <Text fontSize="13px" lineHeight="1.5" color="fg.muted">
+                      {patch.rationale}
+                    </Text>
                   )}
 
                   <Flex
                     justifyContent="space-between"
                     alignItems="center"
-                    mt={hasUsableRewrite(patch) ? "3" : "0"}
+                    mt="3"
                   >
                     <Text fontSize="13px">
                       Impact:{" "}
