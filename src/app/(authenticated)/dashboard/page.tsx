@@ -1,13 +1,9 @@
 "use client";
 
-import { PipelineProgress } from "@/components/dashboard/pipeline-progress";
 import { ReportsList } from "@/components/dashboard/reports-list";
 import { StartAnalysisButton } from "@/components/dashboard/start-analysis-button";
-import { toaster } from "@/components/ui/toaster";
-import { queryKeys } from "@/data/constants";
 import useProfile from "@/data/hooks/useProfile";
 import { apiFetch } from "@/lib/api";
-import { getQueryClient } from "@/lib/query-client";
 import {
   Badge,
   Box,
@@ -42,7 +38,6 @@ export default function DashboardPage() {
   const { data: profile } = useProfile();
   const [jdFile, setJdFile] = useState<UploadedFile | null>(null);
   const [cvFile, setCvFile] = useState<UploadedFile | null>(null);
-  const [pipelineRunId, setPipelineRunId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("New");
   const [linkedinEnabled, setLinkedinEnabled] = useState(false);
   const [linkedinUrl, setLinkedinUrl] = useState("");
@@ -68,52 +63,12 @@ export default function DashboardPage() {
     }
   }, [cvFile]);
 
-  const handleAnalysisStarted = useCallback((runId: string) => {
-    setPipelineRunId(runId);
-  }, []);
-
-  const handleAnalysisComplete = useCallback(() => {
-    const runId = pipelineRunId;
-    setPipelineRunId(null);
-    setJdFile(null);
-    setCvFile(null);
-    getQueryClient().invalidateQueries({ queryKey: queryKeys.profile() });
-    getQueryClient().invalidateQueries({ queryKey: queryKeys.reportsList() });
-    setTimeout(() => {
-      toaster.success({
-        title: "Analysis complete",
-        description: "Your report is ready.",
-      });
-      if (runId) {
-        router.push(`/report/${runId}`);
-      }
-    }, 0);
-  }, [pipelineRunId, router]);
-
-  const handleAnalysisCancel = useCallback(() => {
-    setPipelineRunId(null);
-    setTimeout(() => toaster.info({ title: "Analysis cancelled" }), 0);
-  }, []);
-
-  const handleAnalysisError = useCallback((error: string) => {
-    setTimeout(
-      () => toaster.error({ title: "Analysis failed", description: error }),
-      0,
-    );
-    setPipelineRunId(null);
-  }, []);
-
-  // Show progress view when analysis is running
-  if (pipelineRunId) {
-    return (
-      <PipelineProgress
-        pipelineRunId={pipelineRunId}
-        onComplete={handleAnalysisComplete}
-        onCancel={handleAnalysisCancel}
-        onError={handleAnalysisError}
-      />
-    );
-  }
+  const handleAnalysisStarted = useCallback(
+    (shortId: string) => {
+      router.push(`/report/${shortId}`);
+    },
+    [router],
+  );
 
   const tierLabel = profile?.subscription_tier
     ? profile.subscription_tier.charAt(0).toUpperCase() +

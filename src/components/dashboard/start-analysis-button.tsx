@@ -10,7 +10,7 @@ interface Props {
   disabled: boolean;
   cvUploadId: string | null;
   jdUploadId: string | null;
-  onStarted: (pipelineRunId: string) => void;
+  onStarted: (shortId: string) => void;
 }
 
 export function StartAnalysisButton({
@@ -27,7 +27,7 @@ export function StartAnalysisButton({
     setLoading(true);
     try {
       const result = await startAnalysis(cvUploadId, jdUploadId);
-      onStarted(result.pipeline_run_id);
+      onStarted(result.short_id);
     } catch (e) {
       toaster.error({
         title: "Analysis failed",
