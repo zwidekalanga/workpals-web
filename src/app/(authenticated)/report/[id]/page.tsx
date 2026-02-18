@@ -141,7 +141,7 @@ function InsightCard({
           bg="red.500"
           flexShrink={0}
         >
-          <Text fontSize="11px" fontWeight="700" color="white">
+          <Text fontSize="11px" fontWeight="700" color="white" lineHeight="1">
             {badge}
           </Text>
         </Flex>
