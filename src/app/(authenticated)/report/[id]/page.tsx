@@ -135,13 +135,14 @@ function InsightCard({
         <Flex
           alignItems="center"
           justifyContent="center"
-          w="6"
-          h="6"
+          minW="7"
+          h="7"
+          px="1.5"
           borderRadius="full"
-          bg="red.500"
+          bg="red.100"
           flexShrink={0}
         >
-          <Text fontSize="11px" fontWeight="700" color="white" lineHeight="1">
+          <Text fontSize="12px" fontWeight="700" color="red.600" lineHeight="1">
             {badge}
           </Text>
         </Flex>
