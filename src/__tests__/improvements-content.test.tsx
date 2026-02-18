@@ -103,7 +103,7 @@ describe("ImprovementsContent", () => {
 
     // Impact label
     expect(screen.getByText("Skills match")).toBeDefined();
-    expect(screen.getByText("Experience")).toBeDefined();
+    expect(screen.getByText("Experience relevance")).toBeDefined();
   });
 
   it("renders Apply fix buttons for unapplied patches", () => {

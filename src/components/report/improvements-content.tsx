@@ -12,6 +12,14 @@ interface Props {
   pipelineRunId: string;
 }
 
+const SECTION_IMPACT_LABELS: Record<string, string> = {
+  skills: "Skills match",
+  experience: "Experience relevance",
+  seniority: "Seniority fit",
+  industry: "Domain fit",
+  professional_summary: "Professional summary",
+};
+
 const WEAKNESS_LABELS: Record<string, { label: string; color: string }> = {
   duty_listing: { label: "Duty listing", color: "orange" },
   generic_filler: { label: "Generic filler", color: "red" },
@@ -168,10 +176,8 @@ export function ImprovementsContent({ patches, pipelineRunId }: Props) {
                     <Text fontSize="13px">
                       Impact:{" "}
                       <Text as="span" fontWeight="700">
-                        {patch.section_label}
-                        {patch.section === "experience" &&
-                          patch.role_index != null &&
-                          ` (Role ${patch.role_index + 1})`}
+                        {SECTION_IMPACT_LABELS[patch.section] ??
+                          patch.section_label}
                       </Text>
                     </Text>
                     <Button
