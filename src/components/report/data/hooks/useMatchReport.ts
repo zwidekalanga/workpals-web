@@ -9,5 +9,6 @@ export default function useMatchReport(pipelineRunId: string) {
     queryKey: reportQueryKeys.detail(pipelineRunId),
     queryFn: () => getMatchReport(pipelineRunId),
     staleTime: 10 * 60_000,
+    enabled: !!pipelineRunId,
   });
 }

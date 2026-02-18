@@ -57,7 +57,7 @@ export function ReportsList() {
           alignItems="center"
           cursor="pointer"
           _hover={{ bg: "gray.50" }}
-          onClick={() => router.push(`/report/${report.pipeline_run_id}`)}
+          onClick={() => router.push(`/report/${report.short_id}`)}
         >
           <Flex direction="column" gap="2" overflow="hidden">
             <Text

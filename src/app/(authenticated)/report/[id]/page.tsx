@@ -1,11 +1,14 @@
 "use client";
 
+import { PipelineProgress } from "@/components/dashboard/pipeline-progress";
 import useMatchReport from "@/components/report/data/hooks/useMatchReport";
 import { ImprovementsModal } from "@/components/report/improvements-modal";
 import { QuestionsModal } from "@/components/report/questions-modal";
 import { StrengthsModal } from "@/components/report/strengths-modal";
 import { toaster } from "@/components/ui/toaster";
-import { exportCvPdf } from "@/lib/api";
+import { queryKeys } from "@/data/constants";
+import { exportCvPdf, getAnalysisStatus } from "@/lib/api";
+import { getQueryClient } from "@/lib/query-client";
 import {
   Box,
   Button,
@@ -15,6 +18,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import {
@@ -159,9 +163,28 @@ function InsightCard({
 export default function ReportPage() {
   const params = useParams();
   const router = useRouter();
-  const pipelineRunId = params.id as string;
+  const identifier = params.id as string;
 
-  const { data: report, isLoading: loading } = useMatchReport(pipelineRunId);
+  // First: fetch pipeline status to determine what to show
+  const { data: statusData, isLoading: statusLoading } = useQuery({
+    queryKey: ["workpals", "pipeline-status", identifier],
+    queryFn: () => getAnalysisStatus(identifier),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      // Keep polling while processing/queued so status updates
+      if (status === "processing" || status === "queued") return 3000;
+      return false;
+    },
+  });
+
+  const pipelineStatus = statusData?.status;
+  const pipelineRunId = statusData?.pipeline_run_id ?? identifier;
+
+  // Only fetch the report when pipeline is completed
+  const { data: report, isLoading: reportLoading } = useMatchReport(
+    pipelineStatus === "completed" ? identifier : "",
+  );
+
   const appliedPatches = report?.applied_patches ?? [];
   const [exporting, setExporting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -170,10 +193,37 @@ export default function ReportPage() {
   const [improvementsOpen, setImprovementsOpen] = useState(false);
   const [questionsOpen, setQuestionsOpen] = useState(false);
 
+  const handleProgressComplete = useCallback(() => {
+    getQueryClient().invalidateQueries({
+      queryKey: ["workpals", "pipeline-status", identifier],
+    });
+    getQueryClient().invalidateQueries({ queryKey: queryKeys.profile() });
+    getQueryClient().invalidateQueries({ queryKey: queryKeys.reportsList() });
+    toaster.success({
+      title: "Analysis complete",
+      description: "Your report is ready.",
+    });
+  }, [identifier]);
+
+  const handleProgressCancel = useCallback(() => {
+    router.push("/dashboard");
+    toaster.info({ title: "Analysis cancelled" });
+  }, [router]);
+
+  const handleProgressError = useCallback(
+    (error: string) => {
+      getQueryClient().invalidateQueries({
+        queryKey: ["workpals", "pipeline-status", identifier],
+      });
+      toaster.error({ title: "Analysis failed", description: error });
+    },
+    [identifier],
+  );
+
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
-      const blob = await exportCvPdf(pipelineRunId);
+      const blob = await exportCvPdf(identifier);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -189,12 +239,12 @@ export default function ReportPage() {
     } finally {
       setExporting(false);
     }
-  }, [pipelineRunId]);
+  }, [identifier]);
 
   const handlePreview = useCallback(async () => {
     setPreviewing(true);
     try {
-      const blob = await exportCvPdf(pipelineRunId);
+      const blob = await exportCvPdf(identifier);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (e) {
@@ -205,9 +255,84 @@ export default function ReportPage() {
     } finally {
       setPreviewing(false);
     }
-  }, [pipelineRunId]);
+  }, [identifier]);
 
-  if (loading) {
+  // Loading: haven't fetched status yet
+  if (statusLoading) {
+    return (
+      <Flex justify="center" align="center" minH="60vh">
+        <Spinner size="lg" />
+      </Flex>
+    );
+  }
+
+  // Processing/queued: show pipeline progress
+  if (pipelineStatus === "processing" || pipelineStatus === "queued") {
+    return (
+      <PipelineProgress
+        pipelineRunId={pipelineRunId}
+        onComplete={handleProgressComplete}
+        onCancel={handleProgressCancel}
+        onError={handleProgressError}
+      />
+    );
+  }
+
+  // Failed state
+  if (pipelineStatus === "failed") {
+    return (
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        minH="60vh"
+        gap="4"
+      >
+        <Text color="fg.muted" fontSize="16px">
+          Analysis failed
+        </Text>
+        <Text color="fg.muted" fontSize="13px">
+          {statusData?.error ?? "An unexpected error occurred during analysis."}
+        </Text>
+        <Button
+          variant="outline"
+          borderRadius="full"
+          onClick={() => router.push("/dashboard")}
+        >
+          <LuArrowLeft size={16} />
+          Back to Dashboard
+        </Button>
+      </Flex>
+    );
+  }
+
+  // Cancelled state
+  if (pipelineStatus === "cancelled") {
+    return (
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        minH="60vh"
+        gap="4"
+      >
+        <Text color="fg.muted" fontSize="16px">
+          Analysis was cancelled
+        </Text>
+        <Button
+          variant="outline"
+          borderRadius="full"
+          onClick={() => router.push("/dashboard")}
+        >
+          <LuArrowLeft size={16} />
+          Back to Dashboard
+        </Button>
+      </Flex>
+    );
+  }
+
+  // Completed: loading report data
+  if (reportLoading) {
     return (
       <Flex justify="center" align="center" minH="60vh">
         <Spinner size="lg" />
@@ -386,7 +511,7 @@ export default function ReportPage() {
               title="Points of strength"
               onClick={() => {
                 if (window.innerWidth < 768) {
-                  router.push(`/report/${pipelineRunId}/strengths`);
+                  router.push(`/report/${identifier}/strengths`);
                 } else {
                   setStrengthsOpen(true);
                 }
@@ -398,7 +523,7 @@ export default function ReportPage() {
               badge={unappliedCount > 0 ? unappliedCount : undefined}
               onClick={() => {
                 if (window.innerWidth < 768) {
-                  router.push(`/report/${pipelineRunId}/improvements`);
+                  router.push(`/report/${identifier}/improvements`);
                 } else {
                   setImprovementsOpen(true);
                 }
@@ -409,7 +534,7 @@ export default function ReportPage() {
               title="Interview questions"
               onClick={() => {
                 if (window.innerWidth < 768) {
-                  router.push(`/report/${pipelineRunId}/questions`);
+                  router.push(`/report/${identifier}/questions`);
                 } else {
                   setQuestionsOpen(true);
                 }
@@ -427,7 +552,7 @@ export default function ReportPage() {
             title="Points of strength"
             onClick={() => {
               if (window.innerWidth < 768) {
-                router.push(`/report/${pipelineRunId}/strengths`);
+                router.push(`/report/${identifier}/strengths`);
               } else {
                 setStrengthsOpen(true);
               }
@@ -439,7 +564,7 @@ export default function ReportPage() {
             badge={unappliedCount > 0 ? unappliedCount : undefined}
             onClick={() => {
               if (window.innerWidth < 768) {
-                router.push(`/report/${pipelineRunId}/improvements`);
+                router.push(`/report/${identifier}/improvements`);
               } else {
                 setImprovementsOpen(true);
               }
@@ -450,7 +575,7 @@ export default function ReportPage() {
             title="Interview questions"
             onClick={() => {
               if (window.innerWidth < 768) {
-                router.push(`/report/${pipelineRunId}/questions`);
+                router.push(`/report/${identifier}/questions`);
               } else {
                 setQuestionsOpen(true);
               }
