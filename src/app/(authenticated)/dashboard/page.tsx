@@ -4,8 +4,10 @@ import { PipelineProgress } from "@/components/dashboard/pipeline-progress";
 import { ReportsList } from "@/components/dashboard/reports-list";
 import { StartAnalysisButton } from "@/components/dashboard/start-analysis-button";
 import { toaster } from "@/components/ui/toaster";
+import { queryKeys } from "@/data/constants";
 import useProfile from "@/data/hooks/useProfile";
 import { apiFetch } from "@/lib/api";
+import { getQueryClient } from "@/lib/query-client";
 import {
   Badge,
   Box,
@@ -75,6 +77,8 @@ export default function DashboardPage() {
     setPipelineRunId(null);
     setJdFile(null);
     setCvFile(null);
+    getQueryClient().invalidateQueries({ queryKey: queryKeys.profile() });
+    getQueryClient().invalidateQueries({ queryKey: queryKeys.reportsList() });
     setTimeout(() => {
       toaster.success({
         title: "Analysis complete",
