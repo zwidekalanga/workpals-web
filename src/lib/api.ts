@@ -60,11 +60,13 @@ export async function apiFetchPublic<T>(
 
 interface AnalysisResponse {
   pipeline_run_id: string;
+  short_id: string;
   status: string;
 }
 
-interface AnalysisStatusResponse {
+export interface AnalysisStatusResponse {
   pipeline_run_id: string;
+  short_id: string;
   status: string;
   events: Array<{
     id: string;
@@ -253,6 +255,7 @@ export function getMatchReport(pipelineRunId: string) {
 
 export interface ReportSummary {
   pipeline_run_id: string;
+  short_id: string;
   status: string;
   overall_score: number | null;
   cv_file_name: string;
