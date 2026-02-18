@@ -2,8 +2,10 @@
 
 import { ReportsList } from "@/components/dashboard/reports-list";
 import { StartAnalysisButton } from "@/components/dashboard/start-analysis-button";
+import { queryKeys } from "@/data/constants";
 import useProfile from "@/data/hooks/useProfile";
 import { apiFetch } from "@/lib/api";
+import { getQueryClient } from "@/lib/query-client";
 import {
   Badge,
   Box,
@@ -65,6 +67,8 @@ export default function DashboardPage() {
 
   const handleAnalysisStarted = useCallback(
     (shortId: string) => {
+      // Usage was incremented on the backend — invalidate so dashboard shows fresh count
+      getQueryClient().invalidateQueries({ queryKey: queryKeys.profile() });
       router.push(`/report/${shortId}`);
     },
     [router],
